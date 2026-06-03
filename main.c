@@ -160,13 +160,17 @@ int main(void) {
     path[strcspn(path, "\n")] = '\0';
 
     printf("Enter render scale (recommended 40): ");
-    if (scanf("%f", &scale) != 1 || scale <= 0.0f) {
-        scale = 40.0f;
+    char scale_buf[64];
+    if (fgets(scale_buf, sizeof(scale_buf), stdin) != NULL) {
+        // strtof безопасно конвертирует строку в float
+        float parsed_scale = strtof(scale_buf, NULL);
+        if (parsed_scale > 0.0f) {
+            scale = parsed_scale;
+        } else {
+            scale = 40.0f;
+        }
     }
 
-    // clear buffer after scanf()
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
 
     Point *vertices;
     int v_count = parsing_file(path, &vertices);
