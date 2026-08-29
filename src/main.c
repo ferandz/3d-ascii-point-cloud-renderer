@@ -1,11 +1,12 @@
+#include "ASCIIOR/parser.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <ASCIIPCR/console.h>
-#include <ASCIIPCR/geometry.h>
-#include <ASCIIPCR/prj_defines.h>
+#include <ASCIIOR/console.h>
+#include <ASCIIOR/geometry.h>
+#include <ASCIIOR/prj_defines.h>
 
 /*
 Code Errors:
@@ -13,49 +14,13 @@ Code Errors:
 20 - failed to get old console mode (Windows only)
 25 - failed to set new console mode (Windows only)
 15 - failed to set old console mode (Windows only)
-1 - function template return code on error (all) 
+1 - function template return code on error (all)
 30 - failed to read file (all)
 */
 
 #define DEFAULT_SCALE 40.0f
 
 float user_scale = DEFAULT_SCALE;
-
-int parsing_file(const char *path, Point **output) {
-    char str[64];
-    int v_count = 0;
-
-    // 1. get file
-    FILE* file = fopen(path, "r");
-    if (file == NULL) {
-        fprintf(stderr, "failed to find file: %s\n", path);
-        return 30;
-    }
-
-    // 2. get vertex count
-    while (fgets(str, 64, file) != NULL) {
-        if (str[0] == 'v' && str[1] == ' ') {
-            v_count++;
-        }
-    }
-    rewind(file); // set file pointer at the start
-
-    // 3. allocate new array
-    Point *vertices = malloc(v_count * sizeof(Point));
-
-    // 4. get data
-    uint64_t i = 0; // index of point
-    while (fgets(str, 64, file) != NULL) {
-        if (str[0] == 'v' && str[1] == ' ') {
-            sscanf(str, "v %f %f %f", &vertices[i].x, &vertices[i].y, &vertices[i].z);
-            i++;
-        }
-    }
-
-    *output = vertices;
-
-    return v_count;
-}
 
 int main(void) {
     // windows console pre-initialization
@@ -83,16 +48,23 @@ int main(void) {
         }
     }
 
+    FILE *file = fopen(path, "r");
+    if (!file) {
+        fprintf(stderr, "Failed to open file: %s!", path);
+        return 1;
+    }
 
     Point *vertices;
-    int v_count = parsing_file(path, &vertices);
+    Edge *edges;
+    int v_count = parse_vertices(file, &vertices);
+    int e_count = parse_edges(file, &edges);
 
     if (v_count <= 0 || vertices == NULL) {
-        fprintf(stderr, "failed to load or parse file: %s\n", path);
-#ifdef _WIN32
-        windows_disable_ansi();
-#endif
+        fprintf(stderr, "failed to parse vertices from file: %s\n", path);
         return 1;
+    }
+    if (e_count <= 0 || edges == NULL) {
+        fprintf(stderr, "failed to parse edges from file: %s\n", path);
     }
 
     printf("\x1b[H");
@@ -112,16 +84,17 @@ int main(void) {
             }
         }
 
-        // cube renderer
+        // OBJECT RENDERER
+
         printf("\x1b[H");
 
         for (uint16_t index = 0; index < TERMINAL_WIDTH * TERMINAL_HEIGHT; index++) {
             printf("%c", screen_buffer[index]);
 
-            if ((index + 1) % TERMINAL_WIDTH == 0) // end of line
+            if ((index + 1) % TERMINAL_WIDTH == 0) // eol
                 printf("\n");
         }
-        
+
         rotate_radians(0.05);
 
         #ifdef _WIN32

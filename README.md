@@ -1,36 +1,42 @@
-# ASCII Point Cloud Renderer in C 🧊
+# ASCII Object Renderer in C 💻
 
-**ASCII Point Cloud Renderer** - это легковесный консольный 3D-движок, написанный на чистом C (C99) без использования каких-либо графических библиотек (OpenGL, DirectX, etc.). Проект начинался как эксперимент под впечатлением видео от YouTube канала [Code Fiction](https://www.youtube.com/watch?v=p09i_hoFdd0), но перерос в рендер вершин 3D моделей obj-файла
+**ASCII Object Renderer** — It's a simple pseudo-3D drawing program written in pure C (C99) without any graphics APIs (OpenGL, DirectX, Vulkan, etc.).  
+The project was started as an experiment inspired by the YouTube channel [Code Fiction](https://youtube.com), but it has received significant updates.
 
+> **⚠️ WARNING:** This project was created purely as an experiment, so it may contain suboptimal ("bad") code and questionable design choices.
 
-> **Цель эксперимента:** создать свою реализацию вращающихся куба/вершин куба с глубиной, а также разобраться в линейной алгебре.
+The program reads spatial coordinates for vertices and edges from `.obj` files and projects them onto a 2D console screen with real-time depth mapping.
 
-> **Внимание!** проект был создан чисто как эксперимент и не претендует на хороший код и/или хорошую реализацию.
+## ## Features
+- **`.obj` File Parsing:** The engine automatically counts vertices and edges, allocates RAM dynamically, and parses the coordinates.
+- **Dynamic Pseudo-Depth Shading:** Render characters (`#`, `*`, `.`, `:`) are calculated automatically based on the 'z' coordinate after rotation, creating a visual depth effect.
+- **Wireframe Rendering:** Supports drawing both vertices (points) and edges (lines connecting them).
+- **Guaranteed Cross-Platform Compatibility:**
+  - On **Windows**, ANSI escape sequence support is automatically enabled via WinAPI (`windows.h`).
+  - On **POSIX-compliant OSs** (Linux, macOS), standard system timers via `usleep` are used.
 
+## 🛠 Tech Stack
+- **Programming Language:** C (C99 std)
+- **Libraries:**
+  - stdlibc: `stdio.h`, `math.h`, `string.h`, `stdint.h`
+  - System: `unistd.h` (POSIX-compatibility OS) & `windows.h` (Windows)
 
-Программа считывает пространственные координаты вершин из файлов формата `.obj` и проецирует их на 2D-экран консоли с глубиной в реальном времени
+## 🚀 Compile and Run
+1. You need a C compiler (MSVC, Clang, GCC) and CMake installed.
 
-## Особенности
-- **Парсинг `.obj` файлов** - движок подсчитывает кол-во вершин, выделяет под эту оперативную память и считывает координаты вершин
-- **Динамический псевдо-шейдинг глубины:** Символы отрисовки вершин (`#`, `*`, `.`) рассчитываются автоматически на основе координаты `z` после вращения, создавая эффект глубины
-- **Гарантированная кроссплатформенность:**
-    - На **Windows** через WinAPI (`windows.h`) автоматически активируется поддержка ANSI-последовательности
-    - На **POSIX-совместимых ОС** (Linux, macOS) используются стандартные системные таймеры `usleep`
-
- ## 🛠 Стек
- * **Язык программирования:** C (C99 стандарт)
- * **Библиотеки:**
-    - стандартные: `stdio.h`, `math.h`, `string.h`, `stdint.h`
-    - системные: `unistd.h` (POSIX-совместимые ОС) и `windows.h` (Windows)
- 
-## Как запустить
-1. Скомпилируйте исходный код компилятором C (GCC/Clang/MSVC):
 ```bash
-gcc -O3 main.c -o ascii-renderer -lm
+mkdir build
+cd build
+cmake ..
+cmake --build .
 ```
-2. Подготовьте модель в `.obj` файле (рекомендуется диапозон координат `[-10; 10]`)
-3. Запустите файл, введите путь к модели и желаемый масштаб (по умолчанию 40)
 
- ## Выполненые доп.задачи
-- [x] Парсер .obj файлов
-- [x] Чтение данных и их применение через парсер
+### Running the application:
+- On Windows (CMD/PowerShell):
+  ```bash
+  ASCIIPCR.exe
+  ```
+- On Linux/macOS:
+  ```bash
+  ./ASCIIPCR
+  ```
